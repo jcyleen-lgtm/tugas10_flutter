@@ -1,106 +1,146 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const DragApp());
+void main() => runApp(const ResponsiveApp());
 
-class DragApp extends StatelessWidget {
-  const DragApp({super.key});
+class ResponsiveApp extends StatelessWidget {
+  const ResponsiveApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: const Text('Drag & Swipe Demo')),
-        body: const DragDemo(),
+        appBar: AppBar(title: const Text('Responsive Layout Demo')),
+        body: const ResponsiveLayout(),
       ),
     );
   }
 }
 
-class DragDemo extends StatefulWidget {
-  const DragDemo({super.key});
+class ResponsiveLayout extends StatelessWidget {
+  const ResponsiveLayout({super.key});
 
-  @override
-  State<DragDemo> createState() => _DragDemoState();
-}
-
-class _DragDemoState extends State<DragDemo> {
-  double _positionX = 0;
-  double _positionY = 0;
-  String _dragInfo = 'Drag the box!';
-  double _startX = 0;
-  double _startY = 0;
-
-  void _onPanStart(DragStartDetails details) {
-    setState(() {
-      _startX = _positionX;
-      _startY = _positionY;
-      _dragInfo = 'Drag started!';
-    });
+  Widget _buildPhoneLayout() {
+    return ListView.builder(
+      itemCount: 5,
+      itemBuilder: (context, index) {
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.primaries[index % Colors.primaries.length],
+              child: Text('${index + 1}', style: const TextStyle(color:
+              Colors.white)),
+            ),
+            title: Text('Phone Item ${index + 1}'),
+            subtitle: const Text('This is optimized for mobile devices'),
+            trailing: const Icon(Icons.arrow_forward_ios),
+          ),
+        );
+      },
+    );
   }
 
-  void _onPanUpdate(DragUpdateDetails details) {
-    setState(() {
-      _positionX = _startX + details.delta.dx;
-      _positionY = _startY + details.delta.dy;
-      _dragInfo = 'Dragging... X: ${_positionX.toInt()}, Y: ${_positionY.toInt()}';
-    });
-  }
-
-  void _onPanEnd(DragEndDetails details) {
-    setState(() {
-      _dragInfo = 'Drag ended! Velocity: ${details.velocity.pixelsPerSecond}';
-    });
+  Widget _buildTabletLayout() {
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 1.5,
+      ),
+      padding: const EdgeInsets.all(16),
+      itemCount: 6,
+      itemBuilder: (context, index) {
+        return Card(
+          elevation: 4,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.tablet_mac,
+                size: 50,
+                color: Colors.primaries[index % Colors.primaries.length],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Tablet Item ${index + 1}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 5),
+              const Text('Optimized for tablets'),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          left: _positionX,
-          top: _positionY,
-          child: GestureDetector(
-            onPanStart: _onPanStart,
-            onPanUpdate: _onPanUpdate,
-            onPanEnd: _onPanEnd,
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 5,
-                    offset: const Offset(2, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.touch_app, color: Colors.white, size: 40),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 20,
-          left: 0,
-          right: 0,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            padding: const EdgeInsets.all(16),
+    final size = MediaQuery.of(context).size;
+    final bool isTablet = size.width > 600;
+    final bool isLandscape = size.width > size.height;
+
+    return Container(
+      color: Colors.grey[100],
+      child: Column(
+        children: [
+          // Device Info Panel
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.7),
-              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  blurRadius: 5,
+                ),
+              ],
             ),
-            child: Text(
-              _dragInfo,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
-                  color: Colors.white),
+            child: Column(
+              children: [
+                Text(
+                  'Screen Size: ${size.width.toInt()} x ${size.height.toInt()}',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Chip(
+                      backgroundColor: isTablet ? Colors.green[100] :
+                      Colors.blue[100],
+                      label: Text(
+                        'Device: ${isTablet ? 'Tablet' : 'Phone'}',
+                        style: TextStyle(
+                          color: isTablet ? Colors.green[800] : Colors.blue[800],
+                        ),
+                      ),
+                    ),
+                    Chip(
+                      backgroundColor: isLandscape ? Colors.orange[100] :
+                      Colors.purple[100],
+                      label: Text(
+                        'Orientation: ${isLandscape ? 'Landscape' : 'Portrait'}',
+                        style: TextStyle(
+                          color: isLandscape ? Colors.orange[800] :
+                          Colors.purple[800],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+
+          // Content Area
+          Expanded(
+            child: isTablet ? _buildTabletLayout() : _buildPhoneLayout(),
+          ),
+        ],
+      ),
     );
   }
 }

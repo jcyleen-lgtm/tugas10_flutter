@@ -1,129 +1,202 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(const InkWellApp());
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class InkWellApp extends StatelessWidget {
+  const InkWellApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.deepPurple,
+      home: Scaffold(
+        appBar: AppBar(title: const Text('InkWell Demo')),
+        body: const InkWellDemo(),
       ),
-      home: const ProfileFormPage(),
     );
   }
 }
 
-class ProfileFormPage extends StatefulWidget {
-  const ProfileFormPage({super.key});
+class InkWellDemo extends StatefulWidget {
+  const InkWellDemo({super.key});
 
   @override
-  State<ProfileFormPage> createState() => _ProfileFormPageState();
+  State<InkWellDemo> createState() => _InkWellDemoState();
 }
 
-class _ProfileFormPageState extends State<ProfileFormPage> {
-  final TextEditingController _nameController = TextEditingController();
-  String? gender;
-  Map<String, bool> hobbies = {
-    "Olahraga": false,
-    "Musik": false,
-    "Membaca": false,
-    "Bermain Game": false,
-  };
-  bool agreed = false;
+class _InkWellDemoState extends State<InkWellDemo> {
+  int _tapCount = 0;
+  int _longPressCount = 0;
+  int _doubleTapCount = 0;
+  Color _currentColor = Colors.blue;
 
-  bool get isFormValid =>
-      _nameController.text.isNotEmpty && gender != null && agreed;
+  void _handleTap() {
+    setState(() {
+      _tapCount++;
+      _currentColor = Colors.green;
+    });
+  }
 
-  void _showProfileData() {
-    final selectedHobbies =
-    hobbies.entries.where((e) => e.value).map((e) => e.key).join(", ");
+  void _handleDoubleTap() {
+    setState(() {
+      _doubleTapCount++;
+      _currentColor = Colors.orange;
+    });
+  }
 
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Data Profil Anda"),
-        content: Text(
-          "Nama: ${_nameController.text}\n"
-              "Jenis Kelamin: $gender\n"
-              "Hobi: ${selectedHobbies.isEmpty ? '-' : selectedHobbies}\n"
-              "Menyetujui Syarat: ${agreed ? "Ya" : "Tidak"}",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Tutup"),
+  void _handleLongPress() {
+    setState(() {
+      _longPressCount++;
+      _currentColor = Colors.purple;
+    });
+  }
+
+  void _resetCounters() {
+    setState(() {
+      _tapCount = 0;
+      _longPressCount = 0;
+      _doubleTapCount = 0;
+      _currentColor = Colors.blue;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.grey[50],
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Interactive Box with InkWell
+          InkWell(
+            onTap: _handleTap,
+            onDoubleTap: _handleDoubleTap,
+            onLongPress: _handleLongPress,
+            borderRadius: BorderRadius.circular(20),
+            splashColor: Colors.white.withOpacity(0.5),
+            highlightColor: Colors.white.withOpacity(0.3),
+            child: Container(
+              width: 250,
+              height: 250,
+              decoration: BoxDecoration(
+                color: _currentColor,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.touch_app, size: 60, color: Colors.white),
+                  const SizedBox(height: 15),
+                  const Text(
+                    'Touch Me!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Try different gestures',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 40),
+
+          // Statistics Cards
+          Row(
+            children: [
+              Expanded(
+                child: _buildCounterCard('Taps', _tapCount, Colors.green),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildCounterCard('Double Taps', _doubleTapCount,
+                    Colors.orange),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildCounterCard('Long Press', _longPressCount,
+                    Colors.purple),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 30),
+
+          // Reset Button
+          ElevatedButton.icon(
+            onPressed: _resetCounters,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Reset Counters'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Instructions
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Column(
+              children: [
+                Text(
+                  'Gesture Instructions:',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                SizedBox(height: 8),
+                Text('• Tap: Increment tap counter'),
+                Text('• Double Tap: Increment double tap counter'),
+                Text('• Long Press: Increment long press counter'),
+                Text('• Notice the ripple effect on each interaction!'),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Form Profil Sederhana"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: () => debugPrint("Info clicked"),
-          )
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView(
+  Widget _buildCounterCard(String title, int count, Color color) {
+    return Card(
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
           children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: "Nama Lengkap"),
-              onChanged: (_) => setState(() {}),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
-            const SizedBox(height: 16),
-
-            // RadioButton Gender
-            const Text("Jenis Kelamin:"),
-            RadioListTile(
-              title: const Text("Laki-laki"),
-              value: "Laki-laki",
-              groupValue: gender,
-              onChanged: (value) => setState(() => gender = value),
-            ),
-            RadioListTile(
-              title: const Text("Perempuan"),
-              value: "Perempuan",
-              groupValue: gender,
-              onChanged: (value) => setState(() => gender = value),
-            ),
-
-            const SizedBox(height: 16),
-            const Text("Hobi:"),
-            ...hobbies.keys.map((hobi) {
-              return CheckboxListTile(
-                title: Text(hobi),
-                value: hobbies[hobi],
-                onChanged: (val) => setState(() {
-                  hobbies[hobi] = val!;
-                }),
-              );
-            }),
-
-            const SizedBox(height: 16),
-            SwitchListTile(
-              title: const Text("Saya menyetujui Syarat dan Ketentuan"),
-              value: agreed,
-              onChanged: (val) => setState(() => agreed = val),
-            ),
-
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: isFormValid ? _showProfileData : null,
-              child: const Text("Submit"),
+            const SizedBox(height: 5),
+            Text(
+              '$count',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ],
         ),

@@ -1,83 +1,89 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'pertama.dart';
-import 'kedua.dart';
-import 'ketiga.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(const GestureApp());
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class GestureApp extends StatelessWidget {
+  const GestureApp({super.key});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: Text('Contoh Button Navigation')),
-        body: Layar(),
+        appBar: AppBar(title: const Text('Gesture Detector Demo')),
+        body: const Center(child: GestureDemo()),
       ),
     );
   }
 }
 
-class Layar extends StatefulWidget {
-  const Layar({super.key});
+class GestureDemo extends StatefulWidget {
+  const GestureDemo({super.key});
 
   @override
-  State<Layar> createState() => _LayarState();
+  State<GestureDemo> createState() => _GestureDemoState();
 }
 
-class _LayarState extends State<Layar> {
+class _GestureDemoState extends State<GestureDemo> {
+  String _gestureText = 'Tap, Double Tap, or Long Press';
+  Color _boxColor = Colors.blue;
+
+  void _handleTap() {
+    setState(() {
+      _boxColor = Colors.green;
+      _gestureText = 'Tap Gesture!';
+    });
+  }
+
+  void _handleDoubleTap() {
+    setState(() {
+      _boxColor = Colors.orange;
+      _gestureText = 'Double Tap Gesture!';
+    });
+  }
+
+  void _handleLongPress() {
+    setState(() {
+      _boxColor = Colors.purple;
+      _gestureText = 'Long Press Gesture!';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.only(top: 10, bottom: 10),
-              child: TextButton(
-                child: Text("Input"),
-                onPressed: () => Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (context) => Pertama())),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        GestureDetector(
+          onTap: _handleTap,
+          onDoubleTap: _handleDoubleTap,
+          onLongPress: _handleLongPress,
+          child: Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              color: _boxColor,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Center(
+              child: Text(
+                _gestureText,
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+                textAlign: TextAlign.center,
               ),
             ),
-            Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.only(top: 10, bottom: 10),
-              child: OutlinedButton(
-                child: Text("Process"),
-                onPressed: () => Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (context) => Kedua())),
-              ),
-            ),
-            Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.only(top: 10, bottom: 10),
-              child: IconButton(
-                onPressed: () => Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (context) => Ketiga())),
-                icon: Icon(Icons.output),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        const SizedBox(height: 30),
+        Text(
+          'Last Action: $_gestureText',
+          style: const TextStyle(fontSize: 18),
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          'Try: Tap, Double Tap, or Long Press the box',
+          style: TextStyle(fontSize: 14, color: Colors.grey),
+        ),
+      ],
     );
   }
 }
